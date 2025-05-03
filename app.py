@@ -1,20 +1,26 @@
 import streamlit as st
-from captioning.image_captioner import generate_caption
-from advisor.llm_suggester import suggest_decor
-import tempfile
+from data.load_dataset import load_reddit_caption_dataset
+from llm.suggestion_engine import get_decor_suggestions
+from clip.clip_utils import compute_clip_similarity
+from PIL import Image
+import random
 
-st.title("🛋️ Interior Style Advisor")
+st.title("🛏️ Bedroom Decor Advisor with Caption-Based Suggestions")
+ds = load_reddit_caption_dataset()
+sample = random.choice(ds)
 
-uploaded = st.file_uploader("Upload a photo of a bedroom", type=["jpg", "png", "jpeg"])
-if uploaded:
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(uploaded.read())
-        image_path = tmp.name
+image = sample["images"][0]
+st.image(image, caption="Uploaded Bedroom Photo")
 
-    st.image(image_path, caption="Uploaded Bedroom")
-    caption = generate_caption(image_path)
-    st.markdown(f"**Caption**: {caption}")
+caption_choice = st.radio("Choose a caption source:", ["Gemma", "Qwen"])
+caption = sample["caption_gemma"] if caption_choice == "Gemma" else sample["caption_qwen"]
 
-    decor_tips = suggest_decor(caption)
+st.markdown(f"**Selected Caption ({caption_choice})**: {caption}")
+
+if st.button("Generate Decor Suggestions"):
+    suggestions = get_decor_suggestions(caption)
     st.markdown("### 📝 Decor Suggestions")
-    st.write(decor_tips)
+    st.write(suggestions)
+
+    similarity_score = compute_clip_similarity(image, caption)
+    st.markdown(f"**CLIP Similarity**: {similarity_score:.2f}")

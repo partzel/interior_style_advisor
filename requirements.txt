@@ -1,4 +1,14 @@
-transformers
-torch
-Pillow
+datasets
+textblob
+scikit-learn
+matplotlib
 streamlit
+nltk
+rouge
+torch
+transformers
+pillow
+ftfy
+regex
+tqdm
+open-clip-torch
