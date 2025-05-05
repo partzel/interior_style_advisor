@@ -1,26 +1,24 @@
-import streamlit as st
-from data.load_dataset import load_reddit_caption_dataset
-from llm.suggestion_engine import get_decor_suggestions
-from clip.clip_utils import compute_clip_similarity
-from PIL import Image
-import random
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import PlainTextResponse
+from typing import Optional
 
-st.title("🛏️ Bedroom Decor Advisor with Caption-Based Suggestions")
-ds = load_reddit_caption_dataset()
-sample = random.choice(ds)
+app = FastAPI()
 
-image = sample["images"][0]
-st.image(image, caption="Uploaded Bedroom Photo")
+@app.post("/caption", response_class=PlainTextResponse)
+async def caption_image(
+    image: UploadFile = File(...),
+    prompt: Optional[str] = Form(None)
+):
+    # For debugging/logging purposes
+    print(f"Received image: {image.filename}")
+    if prompt:
+        print(f"Prompt: {prompt}")
 
-caption_choice = st.radio("Choose a caption source:", ["Gemma", "Qwen"])
-caption = sample["caption_gemma"] if caption_choice == "Gemma" else sample["caption_qwen"]
+    # TODO: Add your actual image captioning logic here
+    # For now, return a dummy caption
+    return f"Dummy caption for {image.filename} with prompt: {prompt or 'None'}"
 
-st.markdown(f"**Selected Caption ({caption_choice})**: {caption}")
 
-if st.button("Generate Decor Suggestions"):
-    suggestions = get_decor_suggestions(caption)
-    st.markdown("### 📝 Decor Suggestions")
-    st.write(suggestions)
-
-    similarity_score = compute_clip_similarity(image, caption)
-    st.markdown(f"**CLIP Similarity**: {similarity_score:.2f}")
+@app.get("/hello", response_class=PlainTextResponse)
+async def hello():
+    return "Hello world from the server!"
