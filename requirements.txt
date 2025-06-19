@@ -2,7 +2,6 @@ datasets
 textblob
 scikit-learn
 matplotlib
-streamlit
 nltk
 rouge
 torch
@@ -11,4 +10,8 @@ pillow
 ftfy
 regex
 tqdm
+fastapi
+uvicorn
+huggingface_hub
 open-clip-torch
+accelerate
